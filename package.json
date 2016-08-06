@@ -14,5 +14,9 @@
     "json-2-csv": "^2.0.22",
     "promise": "^7.1.1",
     "request": "^2.74.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.2.2",
+    "eslint-config-google": "^0.6.0"
   }
 }
