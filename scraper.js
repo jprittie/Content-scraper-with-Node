@@ -6,7 +6,7 @@
 
 // Require modules
 var cheerio = require("cheerio");
-var Promise = require("promise");
+//var Promise = require("promise");
 //It was not happy when I promisified request!
 var request = require("request");
 //var request = Promise.promisify(require("request"));
@@ -22,58 +22,53 @@ var productPages = [];
 var shirtsData = [];
 
 
-
-// If data folder doesn't exist, create it
-
-
-
-
 // First scrape, which is scrape of home page
 request(url, function(error, response, body) {
 
+  if (error) {
+    console.log("The site could not be scraped.");
+    // BUT DON'T NEED DISPLAYERROR AS WELL?
+    displayError(error);
+  } else {
     var $ = cheerio.load(body);
 
-        // Find any links that contain the substring "shirt"
-        $("a[href*='shirt']").each(function(){
-            // Get the href of those links, and add that to the home page url
-            var link = $(this);
-            var href = link.attr("href");
-            var newUrl = url + "/" + href;
-          //  console.log(href + "==>" + newUrl);
+    // Find any links that contain the substring "shirt"
+    $("a[href*='shirt']").each(function(){
+      // Get the href of those links, and add that to the home page url
+      var link = $(this);
+      var href = link.attr("href");
+      var newUrl = url + "/" + href;
 
-            // Eliminate duplicate links, then add urls to an array
-            if (newUrlArray.indexOf(newUrl) == -1) {
-                newUrlArray.push(newUrl);
-            }
-        });
-
-    // console.log(newUrlArray);
-
-    // return newUrlArray;
+      // Eliminate duplicate links, then add urls to an array
+      if (newUrlArray.indexOf(newUrl) == -1) {
+          newUrlArray.push(newUrl);
+      }
+    });
 
 
 
-// This function will scrape again on any urls that aren't product pages
-// First, it checks whether the links we already have are product pages
-// If they are, it adds them to the productPages array
+// Second scrape, which targets any urls that aren't product pages
   for (var i=0; i<newUrlArray.length; i++) {
 
+    // If link is a product page, add it to the productPages array
       if (newUrlArray[i].indexOf("?id=") > 0) {
         productPages.push(newUrlArray[i]);
-      }
- // If the link is not a product page, it scrapes again
-     else {
+      } else {
+    // If link is not a product page, scrape on that link
 
-          request(newUrlArray[i], function(error, response, body) {
+        request(newUrlArray[i], function(error, response, body) {
+
+          if (error) {
+            displayError(error);
+          } else {
             var $ = cheerio.load(body);
 
-            // Find any links that start with "shirt.php?id=", as those are product pages
+            // Find any links that contan "shirt.php?id=", as those are product pages
             $("a[href*='shirt.php?id=']").each(function(){
               // Get the href of those links, and add that to the home page url
               var link = $(this);
               var href = link.attr("href");
               var newUrl = url + "/" + href;
-          //    console.log(href + "==>" + newUrl);
 
               // Eliminate duplicate links, then add urls to an array
               if (productPages.indexOf(newUrl) == -1) {
@@ -81,79 +76,102 @@ request(url, function(error, response, body) {
               }
 
             }); // ends each
-        //  console.log("This is the productPages array" + "\n" + productPages);
-        //  return productPages;
 
 
-
-           for (var j=0; j<productPages.length; j++) {
-
-                //  console.log(productPages[j])
+            // Third and final scrape, which will target all product pages
+            for (var j=0; j<productPages.length; j++) {
 
                     request(productPages[j], function(error, response, body) {
+
+                      if (error) {
+                        displayError(error);
+                      } else {
                       var $ = cheerio.load(body);
                       var price = $(".shirt-details h1 .price").text();
-                      // var shirtUrl = window.location.href;
                       var shirtUrl = response.request.uri.href;
                       var title = $(".shirt-details h1").text().slice(4);
-                  //    var title = $(".price").next().text();
-                  //    var title = $(".shirt-picture img").attr("alt");
-
                       var imageUrl = "http://www.shirts4mike.com/" + $(".shirt-picture img").attr("src");
+                      var time = new Date().toLocaleString();
 
                       var shirtDetails = {
-                          "price" : price,
-                          "title" : title,
+                          "Title" : title,
+                          "Price" : price,
+                          "ImageUrl" : imageUrl,
+                          "Url" : shirtUrl,
+                          "Time" : time
 
-                          "url" : shirtUrl,
-                          "imageUrl" : imageUrl
                       }
                       shirtsData.push(shirtDetails);
-                    //  console.dir(shirtDetails);
 
-
+                      // When all links are scraped, write to file
                       if (shirtsData.length == productPages.length){
-                        console.dir(shirtsData);
 
+                        // Create data folder if it doesn't exist
                         if (!fs.existsSync("./data")){
                           fs.mkdirSync("./data");
                         }
 
-                        converter.json2csv(shirtsData, function(err, csv){
-                          if (err) throw err;
-                          console.log(csv);
+                        // Use json-2-csv module to convert JSON
+                        converter.json2csv(shirtsData, function(error, csv){
+                          if (error) {
+                            displayError(error);
+                          } else {
 
-                            fs.writeFile( "./data" + "/" + ".csv", csv, function(err) {
-                              if (err) throw err;
-
+                            fs.writeFile( "./data" + "/" + scraperDate() + ".csv", csv, function(error) {
+                              if (error) {
+                                displayError(error);
+                              }
                             }); // ends writeFile
+
+                        } // ends converter else
                         }); // ends converter
 
 
 
-                      }
-                     
+                      } // ends if shirtsData.length etc.
+
+
+                    } // ends third scrape else
                     }); // ends third scrape request
-
-
 
               } // ends for
 
-
-          });  // ends secondScrape request
+          } // ends second scrape else
+        });  // ends second scrape request
 
       } // ends else
 
   } // ends for
 
-}); // ends firsScrape request
+} // ends first scrape else
+}); // ends first scrape request
 
 
+function scraperDate(){
+      var d = new Date();
+      var year = d.getFullYear();
+      var month = (d.getMonth() + 1);
+      var day = d.getDate();
+
+      if (month.length < 2) {
+        month = "0" + month;
+      }
+
+      if (day.length < 2) {
+        day = "0" + day;
+      }
+
+      return [year, month, day].join('-');
+ } // ends scraperDate
 
 
+function displayError(error){
+  console.log(error.message);
+  var errorTime = new Date().toLocaleString();
+  var errorLog = error.message + " " + errorTime;
 
+    fs.appendFile('scraper-error.log', errorLog, function (error) {
+    if (error) throw error;
 
-function displayScrapeError(error){
-  console.log("Welcome to displayScrapeError");
-  // console.error(error.message);
+    }); //ends appendFile
 }
