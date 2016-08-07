@@ -9,10 +9,8 @@
   "author": "jprittie",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.4.1",
     "cheerio": "^0.20.0",
     "json-2-csv": "^2.0.22",
-    "promise": "^7.1.1",
     "request": "^2.74.0"
   },
   "devDependencies": {
