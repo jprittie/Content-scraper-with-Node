@@ -1,24 +1,12 @@
 // This is the callback hell version of this project
 // But I plan to re-do it with promises
 
-"use strict";
+'use strict';
 
 // Require modules
 var request = require("request");
 var fs = require("fs");
-/* I used cheerio as my scraping package because:
-- it has jQuery syntax, so there's not much of a learning curve
-- it has 80 contributors, so it is actively maintained
-- it is supposed to be 8x faster than the jsdom package (well, that's what the cheerio folks say)
-- most examples of web scrapers that I can find use cheerio, so it seems to be a developer favourite
-*/
 var cheerio = require("cheerio");
-/* I chose json-2-csv as my csv package because:
-- it seemed very easy to implement
-- it automatically generates column headings based on JSON keys
-- it seems to be updated on a regular basis
-- it has had 10,000 downloads in the last month, so it seems to be one of the more popular csv conversion packages
-*/
 var converter = require("json-2-csv");
 
 // Initialize variables
@@ -32,7 +20,6 @@ var shirtsData = [];
 request(url, function(error, response, body) {
   if (error) {
     console.log("The site could not be scraped.");
-    // BUT DON'T NEED DISPLAYERROR AS WELL?
     displayError(error);
   } else {
     var $ = cheerio.load(body);
