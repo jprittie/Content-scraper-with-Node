@@ -69,11 +69,11 @@ request(url, function(error, response, body) {
                   displayError(error);
                 } else {
                   var $ = cheerio.load(body);
-                  var price = $(".shirt-details h1 .price").text();
-                  var shirtUrl = response.request.uri.href;
-                  var title = $(".shirt-details h1").text().slice(4);
-                  var imageUrl = "http://www.shirts4mike.com/" + $(".shirt-picture img").attr("src");
-                  var time = new Date().toLocaleString();
+                  var price = '"' + $(".shirt-details h1 .price").text() + '"';
+                  var shirtUrl = '"' + response.request.uri.href + '"';
+                  var title = '"' + $(".shirt-details h1").text().slice(4) + '"';
+                  var imageUrl = '"' + "http://www.shirts4mike.com/" + $(".shirt-picture img").attr("src") + '"';
+                  var time = '"' + new Date().toLocaleString() + '"';
 
                   var shirtDetails = {
                     Title: title,
