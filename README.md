@@ -4,7 +4,7 @@
 ###Instructions:
 * Run `git clone https://github.com/jprittie/Content-scraper-with-Node` command to clone the project on your local machine.
 * Run `npm install` command to install all the necessary dependencies.
-* Run `npm start` command to start the project with the node server.
+* Run `npm start` command to start the project with the node server. This will run the scraper; the results will be written to a new .csv file in the data folder. 
 
 
 ###Project objectives:
