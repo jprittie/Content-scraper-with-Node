@@ -1,6 +1,12 @@
 ##Build a content scraper with Node
 *Project 6 of Treehouse Full Stack JavaScript course*
 
+###Instructions:
+* Run `git clone https://github.com/jprittie/Content-scraper-with-Node` command to clone the project on your local machine.
+* Run `npm install` command to install all the necessary dependencies.
+* Run `npm start` command to start the project with the node server.
+
+
 ###Project objectives:
 Imagine you work at a price comparison website. You’ve been given the task of creating a Node.js command line application that goes to an ecommerce site to get the latest prices and save them to a spreadsheet (CSV format). This spreadsheet will be used by another application to populate a database. The application you build will be run once every day. To complete this project, you'll need to research and use npm packages that will help you scrape a website and create a CSV file.
 
